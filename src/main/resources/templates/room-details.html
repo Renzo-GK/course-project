@@ -1,0 +1,15 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+    <div class="container mt-4">
+        <h2 th:text="">Комната</h2>
+        <p><strong>Вместимость:</strong> <span th:text="">0</span> чел.</p>
+        <p><strong>Оборудование:</strong> <span th:text="">-</span></p>
+        <p><strong>Этаж:</strong> <span th:text="">-</span></p>
+        <a href="/bookings/create" class="btn btn-success">Забронировать</a>
+        <a href="/rooms" class="btn btn-secondary">Назад</a>
+    </div>
+</body>
+</html>

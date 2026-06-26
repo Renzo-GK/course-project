@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+    <div class="container mt-4">
+        <h2>Мои бронирования</h2>
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Комната</th>
+                    <th>Начало</th>
+                    <th>Конец</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="booking : ">
+                    <td th:text="">Комната</td>
+                    <td th:text="">Начало</td>
+                    <td th:text="">Конец</td>
+                    <td><span class="badge bg-primary" th:text="">Статус</span></td>
+                    <td>
+                        <a th:href="'/api/bookings/' +  + '?userId=' + " 
+                           class="btn btn-danger btn-sm">Отменить</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

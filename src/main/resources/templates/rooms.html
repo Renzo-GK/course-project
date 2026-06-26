@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+    <div class="container mt-4">
+        <h2>Переговорные комнаты</h2>
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3" th:each="room : ">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="">Название</h5>
+                        <p class="card-text">
+                            <strong>Вместимость:</strong> <span th:text="">0</span> чел.<br>
+                            <strong>Оборудование:</strong> <span th:text="">-</span><br>
+                            <strong>Этаж:</strong> <span th:text="">-</span><br>
+                            <span class="badge bg-success" th:if="">Доступна</span>
+                            <span class="badge bg-danger" th:unless="">Недоступна</span>
+                        </p>
+                        <a th:href="'/rooms/' + " class="btn btn-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

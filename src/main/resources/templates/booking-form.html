@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}"></head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+    <div class="container mt-4">
+        <h2>Создание бронирования</h2>
+        <form action="/api/bookings" method="post" class="mt-4">
+            <div class="mb-3">
+                <label class="form-label">Комната</label>
+                <select name="meetingRoom.id" class="form-select" required>
+                    <option th:each="room : " th:value="" th:text=""></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время начала</label>
+                <input type="datetime-local" name="startDateTime" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата и время окончания</label>
+                <input type="datetime-local" name="endDateTime" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Тема встречи</label>
+                <input type="text" name="subject" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Забронировать</button>
+            <a href="/rooms" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</body>
+</html>
