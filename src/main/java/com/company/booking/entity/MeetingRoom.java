@@ -1,4 +1,4 @@
-﻿package com.company.booking.entity;
+package com.company.booking.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

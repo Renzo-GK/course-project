@@ -1,4 +1,4 @@
-﻿package com.company.booking.service;
+package com.company.booking.service;
 
 import com.company.booking.entity.User;
 import com.company.booking.entity.Role;

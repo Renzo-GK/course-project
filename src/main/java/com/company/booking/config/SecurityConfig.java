@@ -1,4 +1,4 @@
-﻿package com.company.booking.config;
+package com.company.booking.config;
 
 import com.company.booking.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -32,20 +32,21 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/css/**", "/js/**", "/images/**", "/login", "/register").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/**", "/css/**", "/js/**", "/images/**", "/login", "/register", "/h2-console/**", "/error").permitAll()
                 .anyRequest().authenticated()
             .and()
             .formLogin()
                 .loginPage("/login")
-                .defaultSuccessUrl("/rooms")
+                .defaultSuccessUrl("/index.html", true)
+                .failureUrl("/login.html?error=true")
                 .permitAll()
             .and()
             .logout()
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/index.html?logout")
                 .permitAll()
             .and()
-            .csrf().disable();
+            .csrf().disable()
+            .headers().frameOptions().disable();
 
         return http.build();
     }

@@ -1,4 +1,4 @@
-﻿package com.company.booking.service;
+package com.company.booking.service;
 
 import com.company.booking.entity.User;
 import com.company.booking.entity.Role;
@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -81,13 +80,5 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setRole(role);
         return userRepository.save(user);
-    }
-
-    @Transactional
-    public void enableUser(Long id, boolean enabled) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setEnabled(enabled);
-        userRepository.save(user);
     }
 }

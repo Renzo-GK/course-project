@@ -1,11 +1,10 @@
-﻿package com.company.booking.repository;
+package com.company.booking.repository;
 
 import com.company.booking.entity.MeetingRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
