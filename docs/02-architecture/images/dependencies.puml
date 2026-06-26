@@ -1,0 +1,71 @@
+﻿@startuml
+!theme plain
+title Диаграмма зависимостей (PCMEF)
+
+' --- СЛОЙ PRESENTATION ---
+package "Presentation" {
+    class "RoomController" as PC1
+    class "UserController" as PC2
+    class "BookingController" as PC3
+}
+
+' --- СЛОЙ CONTROL ---
+package "Control" {
+    class "RoomController" as CC1
+    class "UserController" as CC2
+    class "BookingController" as CC3
+}
+
+' --- СЛОЙ MEDIATOR ---
+package "Mediator" {
+    interface "IRoomService" as MI1
+    interface "IUserService" as MI2
+    interface "IBookingService" as MI3
+    class "RoomService" as MC1
+    class "UserService" as MC2
+    class "BookingService" as MC3
+}
+
+' --- СЛОЙ ENTITY ---
+package "Entity" {
+    class "Room" as E1
+    class "User" as E2
+    class "Booking" as E3
+}
+
+' --- СЛОЙ FOUNDATION ---
+package "Foundation" {
+    interface "IRoomRepository" as FI1
+    interface "IUserRepository" as FI2
+    interface "IBookingRepository" as FI3
+    class "RoomRepository" as FC1
+    class "UserRepository" as FC2
+    class "BookingRepository" as FC3
+}
+
+' --- ЗАВИСИМОСТИ ---
+PC1 --> CC1
+PC2 --> CC2
+PC3 --> CC3
+
+CC1 --> MI1
+CC2 --> MI2
+CC3 --> MI3
+
+MC1 ..|> MI1
+MC2 ..|> MI2
+MC3 ..|> MI3
+
+MC1 --> E1
+MC2 --> E2
+MC3 --> E3
+
+MC1 --> FI1
+MC2 --> FI2
+MC3 --> FI3
+
+FC1 ..|> FI1
+FC2 ..|> FI2
+FC3 ..|> FI3
+
+@enduml

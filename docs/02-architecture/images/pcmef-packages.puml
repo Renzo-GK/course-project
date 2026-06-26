@@ -1,0 +1,67 @@
+﻿@startuml
+!theme plain
+title Архитектура PCMEF
+
+package "Presentation (P)" #LightBlue {
+    [Thymeleaf Templates]
+    [CSS/JavaScript]
+    [HTML Pages]
+}
+
+package "Control (C)" #LightGreen {
+    [UserController]
+    [RoomController]
+    [BookingController]
+}
+
+package "Mediator (M)" #LightYellow {
+    [IUserService]
+    [IRoomService]
+    [IBookingService]
+    [UserService]
+    [RoomService]
+    [BookingService]
+}
+
+package "Entity (E)" #LightCoral {
+    [User]
+    [MeetingRoom]
+    [Booking]
+    [Role]
+    [BookingStatus]
+}
+
+package "Foundation (F)" #LightGray {
+    [IUserRepository]
+    [IRoomRepository]
+    [IBookingRepository]
+    [UserRepository]
+    [RoomRepository]
+    [BookingRepository]
+}
+
+database "PostgreSQL" as DB
+
+' --- Зависимости (сверху вниз) ---
+Presentation -down-> Control : "зависит"
+Control -down-> Mediator : "зависит"
+Mediator -down-> Entity : "зависит"
+Mediator -down-> Foundation : "зависит"
+Foundation -down-> DB : "использует"
+
+' --- Интерфейсы ---
+note right of Mediator
+    <b>Интерфейсы:</b>
+    IUserService
+    IRoomService
+    IBookingService
+end note
+
+note right of Foundation
+    <b>Интерфейсы:</b>
+    IUserRepository
+    IRoomRepository
+    IBookingRepository
+end note
+
+@enduml
