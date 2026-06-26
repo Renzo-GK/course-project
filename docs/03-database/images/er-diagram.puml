@@ -1,0 +1,72 @@
+﻿@startuml
+!theme plain
+title ER-диаграмма (Логическая модель данных)
+
+entity "users" as users {
+    * id : BIGSERIAL <<PK>>
+    --
+    * username : VARCHAR(50) <<UK>>
+    * password : VARCHAR(255)
+    * full_name : VARCHAR(100)
+    * email : VARCHAR(100) <<UK>>
+    * role : VARCHAR(20)
+    * enabled : BOOLEAN
+    * created_at : TIMESTAMP
+}
+
+entity "meeting_rooms" as rooms {
+    * id : BIGSERIAL <<PK>>
+    --
+    * name : VARCHAR(100)
+    * capacity : INTEGER
+    * equipment : TEXT
+    * location : VARCHAR(100)
+    * is_available : BOOLEAN
+    * created_at : TIMESTAMP
+}
+
+entity "bookings" as bookings {
+    * id : BIGSERIAL <<PK>>
+    --
+    * room_id : BIGINT <<FK>>
+    * user_id : BIGINT <<FK>>
+    * start_date_time : TIMESTAMP
+    * end_date_time : TIMESTAMP
+    * status : VARCHAR(20)
+    * subject : VARCHAR(200)
+    * description : TEXT
+    * created_at : TIMESTAMP
+}
+
+enum "role_enum" as role {
+    USER
+    ADMIN
+}
+
+enum "booking_status_enum" as status {
+    SCHEDULED
+    COMPLETED
+    CANCELLED
+}
+
+' --- Связи ---
+users ||--o{ bookings : "1 : *"
+rooms ||--o{ bookings : "1 : *"
+users ||--|| role : "имеет"
+bookings ||--|| status : "имеет"
+
+' --- Индексы ---
+note bottom of bookings
+    <b>Индексы:</b>
+    • idx_bookings_room_time (room_id, start_date_time)
+    • idx_bookings_user (user_id)
+    • idx_bookings_status (status)
+end note
+
+note bottom of users
+    <b>Индексы:</b>
+    • idx_users_email (email)
+    • idx_users_username (username)
+end note
+
+@enduml
