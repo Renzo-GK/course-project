@@ -4,27 +4,58 @@
     <meta charset="UTF-8">
     <title>Мои бронирования</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">Переговорные комнаты</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-door-open"></i> Переговорные комнаты</a>
             <div>
-                <a class="btn btn-outline-light btn-sm me-2" href="/">Главная</a>
-                <a class="btn btn-outline-light btn-sm me-2" href="/booking-form.html">Новое бронирование</a>
-                <a class="btn btn-outline-light btn-sm" href="/logout">Выйти</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="/"><i class="bi bi-house"></i> Главная</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="/booking-form.html"><i class="bi bi-plus-circle"></i> Новое</a>
+                <a class="btn btn-outline-light btn-sm" href="/logout"><i class="bi bi-box-arrow-right"></i> Выйти</a>
             </div>
         </div>
     </nav>
+
     <div class="container mt-4">
-        <h2>Мои бронирования</h2>
+        <h2><i class="bi bi-calendar-check"></i> Мои бронирования</h2>
         <div id="bookings-list" class="mt-4">
             <div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>
         </div>
     </div>
 
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение отмены</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите отменить бронирование?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancelBtn">Да, отменить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">Успешно!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const userId = 1;
+        let bookingToCancel = null;
 
         function loadBookings() {
             fetch('/api/bookings/user/' + userId)
@@ -38,23 +69,28 @@
                         container.innerHTML = '<div class="alert alert-info">Бронирований не найдено.</div>';
                         return;
                     }
-                    let html = `<table class="table table-striped">
-                        <thead>
+                    let html = `<div class="table-responsive"><table class="table table-striped table-hover">
+                        <thead class="table-dark">
                             <tr><th>Комната</th><th>Начало</th><th>Окончание</th><th>Тема</th><th>Статус</th><th>Действие</th></tr>
                         </thead><tbody>`;
                     bookings.forEach(b => {
+                        let statusBadge = `<span class="badge bg-primary">${b.status}</span>`;
+                        if (b.status === 'SCHEDULED') statusBadge = `<span class="badge bg-success">Запланировано</span>`;
+                        else if (b.status === 'CANCELLED') statusBadge = `<span class="badge bg-danger">Отменено</span>`;
+                        else if (b.status === 'COMPLETED') statusBadge = `<span class="badge bg-secondary">Завершено</span>`;
+
                         html += `<tr>
-                            <td>${b.roomName}</td>
+                            <td><i class="bi bi-door-open"></i> ${b.roomName}</td>
                             <td>${new Date(b.startDateTime).toLocaleString()}</td>
                             <td>${new Date(b.endDateTime).toLocaleString()}</td>
                             <td>${b.subject || '-'}</td>
-                            <td><span class="badge bg-primary">${b.status}</span></td>
+                            <td>${statusBadge}</td>
                             <td>
-                                ${b.status === 'SCHEDULED' ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">Отменить</button>` : '-'}
+                                ${b.status === 'SCHEDULED' ? `<button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" onclick="setBookingToCancel(${b.id})">Отменить</button>` : '-'}
                             </td>
                         </tr>`;
                     });
-                    html += '</tbody></table>';
+                    html += '</tbody></table></div>';
                     container.innerHTML = html;
                 })
                 .catch(err => {
@@ -62,17 +98,37 @@
                 });
         }
 
-        function cancelBooking(bookingId) {
-            if (!confirm('Отменить бронирование?')) return;
-            fetch('/api/bookings/' + bookingId + '?userId=' + userId, {
+        function setBookingToCancel(id) {
+            bookingToCancel = id;
+        }
+
+        document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+            if (bookingToCancel === null) return;
+            fetch('/api/bookings/' + bookingToCancel + '?userId=' + userId, {
                 method: 'DELETE'
             })
             .then(res => {
                 if (!res.ok) throw new Error('Не удалось отменить');
+                var toastEl = document.getElementById('liveToast');
+                var toast = new bootstrap.Toast(toastEl);
+                document.getElementById('toastMessage').textContent = 'Бронирование отменено!';
+                toastEl.classList.remove('bg-danger');
+                toastEl.classList.add('bg-success');
+                toast.show();
                 loadBookings();
             })
-            .catch(err => alert('Ошибка: ' + err.message));
-        }
+            .catch(err => {
+                var toastEl = document.getElementById('liveToast');
+                var toast = new bootstrap.Toast(toastEl);
+                document.getElementById('toastMessage').textContent = 'Ошибка: ' + err.message;
+                toastEl.classList.remove('bg-success');
+                toastEl.classList.add('bg-danger');
+                toast.show();
+            });
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            modal.hide();
+            bookingToCancel = null;
+        });
 
         loadBookings();
     </script>

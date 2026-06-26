@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <title>Переговорные комнаты</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .card:hover { transform: translateY(-5px); transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">Переговорные комнаты</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-door-open"></i> Переговорные комнаты</a>
             <div>
-                <a class="btn btn-outline-light btn-sm me-2" href="/booking-form.html">Бронировать</a>
-                <a class="btn btn-outline-light btn-sm me-2" href="/my-bookings.html">Мои бронирования</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="/booking-form.html"><i class="bi bi-plus-circle"></i> Бронировать</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="/my-bookings.html"><i class="bi bi-calendar-check"></i> Мои</a>
                 <a class="btn btn-outline-light btn-sm me-2" href="/login">Вход</a>
                 <a class="btn btn-outline-light btn-sm" href="/register">Регистрация</a>
             </div>
         </div>
     </nav>
     <div class="container mt-5">
-        <h2>Переговорные комнаты</h2>
+        <h2><i class="bi bi-grid"></i> Переговорные комнаты</h2>
         <hr>
-        <div id="rooms-container" class="row mt-4">
-            <div class="col-12 text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
-                </div>
-                <p>Загрузка комнат...</p>
-            </div>
-        </div>
+        <div id="rooms-container" class="row mt-4"></div>
     </div>
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+        <p class="mb-0">© 2026 Переговорные комнаты. Все права защищены.</p>
+    </footer>
     <script>
         fetch('/api/rooms')
             .then(response => response.json())
@@ -40,25 +40,27 @@
                     return;
                 }
                 data.forEach(room => {
-                    container.innerHTML +=
-                    '<div class="col-md-4 mb-3">' +
-                        '<div class="card">' +
-                            '<div class="card-body">' +
-                                '<h5 class="card-title">' + room.name + '</h5>' +
-                                '<p><strong>Вместимость:</strong> ' + room.capacity + '</p>' +
-                                '<p><strong>Оборудование:</strong> ' + (room.equipment || '-') + '</p>' +
-                                '<p><strong>Местоположение:</strong> ' + room.location + '</p>' +
-                                '<span class="badge ' + (room.available ? 'bg-success' : 'bg-danger') + '">' +
-                                    (room.available ? 'Доступна' : 'Недоступна') +
-                                '</span>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
+                    const statusIcon = room.available ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle-fill text-danger"></i>';
+                    const statusText = room.available ? 'Доступна' : 'Недоступна';
+                    container.innerHTML += `
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-door-open"></i> ${room.name}</h5>
+                                    <p class="card-text">
+                                        <i class="bi bi-people"></i> <strong>Вместимость:</strong> ${room.capacity}<br>
+                                        <i class="bi bi-tools"></i> <strong>Оборудование:</strong> ${room.equipment || '-'}<br>
+                                        <i class="bi bi-geo-alt"></i> <strong>Местоположение:</strong> ${room.location}
+                                    </p>
+                                    <span class="badge ${room.available ? 'bg-success' : 'bg-danger'}">${statusIcon} ${statusText}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
             })
             .catch(error => {
-                document.getElementById('rooms-container').innerHTML =
-                    '<div class="alert alert-danger">Ошибка: ' + error.message + '</div>';
+                document.getElementById('rooms-container').innerHTML = `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
             });
     </script>
 </body>
