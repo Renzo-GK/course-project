@@ -1,0 +1,55 @@
+﻿@startuml
+!theme plain
+title Диаграмма последовательности: Создание бронирования (UC-04)
+
+actor "Пользователь" as User
+participant "Presentation\n(BookingController)" as P
+participant "Control\n(BookingController)" as C
+participant "Mediator\n(IBookingService)" as M
+participant "Foundation\n(IBookingRepository)" as F
+participant "Entity\n(Booking)" as E
+database "PostgreSQL" as DB
+
+User -> P: 1. Запрос на создание бронирования
+activate P
+
+P -> C: 2. validateBookingData()
+activate C
+C --> P: 3. Данные валидны
+deactivate C
+
+P -> C: 4. createBooking(bookingDTO)
+activate C
+
+C -> M: 5. createBooking(booking)
+activate M
+
+M -> F: 6. findByRoomAndTime(roomId, start, end)
+activate F
+F -> DB: 7. SELECT ... WHERE room_id = ? AND start_time = ?
+DB --> F: 8. Результат (пусто)
+F --> M: 9. Комната свободна
+deactivate F
+
+M -> E: 10. new Booking()
+activate E
+E --> M: 11. Объект создан
+deactivate E
+
+M -> F: 12. save(booking)
+activate F
+F -> DB: 13. INSERT INTO bookings
+DB --> F: 14. ID сгенерирован
+F --> M: 15. Booking сохранен
+deactivate F
+
+M --> C: 16. Booking создан
+deactivate M
+
+C --> P: 17. BookingDTO
+deactivate C
+
+P --> User: 18. Подтверждение бронирования
+deactivate P
+
+@enduml

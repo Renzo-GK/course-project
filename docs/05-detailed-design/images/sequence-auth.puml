@@ -1,0 +1,45 @@
+﻿@startuml
+!theme plain
+title Диаграмма последовательности: Аутентификация (UC-01)
+
+actor "Пользователь" as User
+participant "Presentation\n(LoginController)" as P
+participant "Control\n(AuthController)" as C
+participant "Mediator\n(IUserService)" as M
+participant "Foundation\n(IUserRepository)" as F
+database "PostgreSQL" as DB
+
+User -> P: 1. Ввод логина и пароля
+activate P
+
+P -> C: 2. authenticate(username, password)
+activate C
+
+C -> M: 3. authenticate(username, password)
+activate M
+
+M -> F: 4. findByUsername(username)
+activate F
+F -> DB: 5. SELECT * FROM users WHERE username = ?
+DB --> F: 6. Данные пользователя
+F --> M: 7. User (или null)
+deactivate F
+
+alt Пользователь найден
+    M -> M: 8. Проверка пароля (BCrypt)
+    alt Пароль верный
+        M --> C: 9. User аутентифицирован
+        C --> P: 10. Успешный вход
+        P --> User: 11. Перенаправление на главную
+    else Пароль неверный
+        M --> C: 12. Ошибка аутентификации
+        C --> P: 13. Ошибка
+        P --> User: 14. Сообщение "Неверный пароль"
+    end
+else Пользователь не найден
+    M --> C: 15. Пользователь не найден
+    C --> P: 16. Ошибка
+    P --> User: 17. Сообщение "Пользователь не найден"
+end
+
+@enduml

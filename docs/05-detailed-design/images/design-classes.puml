@@ -1,0 +1,224 @@
+﻿@startuml
+!theme plain
+title Диаграмма классов проектирования (PCMEF)
+
+' --- PRESENTATION LAYER ---
+package "Presentation" {
+    class BookingController {
+        - bookingService: IBookingService
+        + listBookings(): String
+        + showCreateForm(): String
+        + createBooking(bookingDTO): String
+        + cancelBooking(id): String
+    }
+    
+    class UserController {
+        - userService: IUserService
+        + login(): String
+        + register(): String
+        + profile(): String
+    }
+    
+    class RoomController {
+        - roomService: IRoomService
+        + listRooms(): String
+        + showCreateForm(): String
+        + createRoom(roomDTO): String
+        + deleteRoom(id): String
+    }
+}
+
+' --- CONTROL LAYER ---
+package "Control" {
+    class BookingController {
+        - bookingService: IBookingService
+        + createBooking(BookingDTO): Booking
+        + cancelBooking(Long): void
+        + getBookingById(Long): Booking
+    }
+    
+    class UserController {
+        - userService: IUserService
+        + authenticate(String, String): User
+        + register(User): User
+    }
+    
+    class RoomController {
+        - roomService: IRoomService
+        + createRoom(MeetingRoom): MeetingRoom
+        + getAllRooms(): List<MeetingRoom>
+        + deleteRoom(Long): void
+    }
+}
+
+' --- MEDIATOR LAYER ---
+package "Mediator" {
+    interface IBookingService {
+        + createBooking(Booking): Booking
+        + cancelBooking(Long): void
+        + getBookingById(Long): Booking
+        + getBookingsByUser(Long): List<Booking>
+        + isRoomAvailable(Long, LocalDateTime, LocalDateTime): boolean
+    }
+    
+    interface IUserService {
+        + authenticate(String, String): User
+        + register(User): User
+        + getUserById(Long): User
+        + getAllUsers(): List<User>
+    }
+    
+    interface IRoomService {
+        + createRoom(MeetingRoom): MeetingRoom
+        + getAllRooms(): List<MeetingRoom>
+        + deleteRoom(Long): void
+        + getAvailableRooms(LocalDateTime, LocalDateTime): List<MeetingRoom>
+    }
+    
+    class BookingService implements IBookingService {
+        - repository: IBookingRepository
+        - userService: IUserService
+        + createBooking(Booking): Booking
+        + cancelBooking(Long): void
+        + getBookingById(Long): Booking
+        + getBookingsByUser(Long): List<Booking>
+        + isRoomAvailable(Long, LocalDateTime, LocalDateTime): boolean
+    }
+    
+    class UserService implements IUserService {
+        - repository: IUserRepository
+        - passwordEncoder: PasswordEncoder
+        + authenticate(String, String): User
+        + register(User): User
+        + getUserById(Long): User
+        + getAllUsers(): List<User>
+    }
+    
+    class RoomService implements IRoomService {
+        - repository: IRoomRepository
+        + createRoom(MeetingRoom): MeetingRoom
+        + getAllRooms(): List<MeetingRoom>
+        + deleteRoom(Long): void
+        + getAvailableRooms(LocalDateTime, LocalDateTime): List<MeetingRoom>
+    }
+}
+
+' --- ENTITY LAYER ---
+package "Entity" {
+    class User {
+        - id: Long
+        - username: String
+        - password: String
+        - fullName: String
+        - email: String
+        - role: String
+        - enabled: boolean
+        + getBookings(): List<Booking>
+        + hasRole(String): boolean
+    }
+    
+    class MeetingRoom {
+        - id: Long
+        - name: String
+        - capacity: Integer
+        - equipment: String
+        - location: String
+        - isAvailable: boolean
+        + getBookings(): List<Booking>
+        + isFree(LocalDateTime, LocalDateTime): boolean
+    }
+    
+    class Booking {
+        - id: Long
+        - startDateTime: LocalDateTime
+        - endDateTime: LocalDateTime
+        - status: String
+        - subject: String
+        - description: String
+        + cancel(): void
+        + isActive(): boolean
+        + getDuration(): long
+    }
+}
+
+' --- FOUNDATION LAYER ---
+package "Foundation" {
+    interface IBookingRepository {
+        + findById(Long): Booking
+        + save(Booking): Booking
+        + delete(Long): void
+        + findAll(): List<Booking>
+        + findByUser(Long): List<Booking>
+        + findByRoomAndTime(Long, LocalDateTime, LocalDateTime): List<Booking>
+        + existsByRoomAndTime(Long, LocalDateTime, LocalDateTime): boolean
+    }
+    
+    interface IUserRepository {
+        + findById(Long): User
+        + save(User): User
+        + delete(Long): void
+        + findAll(): List<User>
+        + findByUsername(String): User
+        + findByEmail(String): User
+        + existsByUsername(String): boolean
+    }
+    
+    interface IRoomRepository {
+        + findById(Long): MeetingRoom
+        + save(MeetingRoom): MeetingRoom
+        + delete(Long): void
+        + findAll(): List<MeetingRoom>
+        + findAvailable(LocalDateTime, LocalDateTime): List<MeetingRoom>
+    }
+    
+    class BookingRepository implements IBookingRepository {
+        - entityManager: EntityManager
+        + findById(Long): Booking
+        + save(Booking): Booking
+        + delete(Long): void
+        + findAll(): List<Booking>
+        + findByUser(Long): List<Booking>
+        + findByRoomAndTime(Long, LocalDateTime, LocalDateTime): List<Booking>
+        + existsByRoomAndTime(Long, LocalDateTime, LocalDateTime): boolean
+    }
+    
+    class UserRepository implements IUserRepository {
+        - entityManager: EntityManager
+        + findById(Long): User
+        + save(User): User
+        + delete(Long): void
+        + findAll(): List<User>
+        + findByUsername(String): User
+        + findByEmail(String): User
+        + existsByUsername(String): boolean
+    }
+    
+    class RoomRepository implements IRoomRepository {
+        - entityManager: EntityManager
+        + findById(Long): MeetingRoom
+        + save(MeetingRoom): MeetingRoom
+        + delete(Long): void
+        + findAll(): List<MeetingRoom>
+        + findAvailable(LocalDateTime, LocalDateTime): List<MeetingRoom>
+    }
+}
+
+' --- ЗАВИСИМОСТИ (ПО PCMEF) ---
+BookingController --> BookingService : uses
+UserController --> UserService : uses
+RoomController --> RoomService : uses
+
+BookingService --> BookingRepository : uses
+UserService --> UserRepository : uses
+RoomService --> RoomRepository : uses
+
+BookingService ..> User
+BookingService ..> Booking
+RoomService ..> MeetingRoom
+UserService ..> User
+
+BookingRepository ..> Booking
+UserRepository ..> User
+RoomRepository ..> MeetingRoom
+
+@enduml

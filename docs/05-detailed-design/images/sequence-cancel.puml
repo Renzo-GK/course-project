@@ -1,0 +1,53 @@
+﻿@startuml
+!theme plain
+title Диаграмма последовательности: Отмена бронирования (UC-06)
+
+actor "Пользователь" as User
+participant "Presentation\n(BookingController)" as P
+participant "Control\n(BookingController)" as C
+participant "Mediator\n(IBookingService)" as M
+participant "Foundation\n(IBookingRepository)" as F
+database "PostgreSQL" as DB
+
+User -> P: 1. Запрос на отмену бронирования (ID)
+activate P
+
+P -> C: 2. cancelBooking(bookingId, userId)
+activate C
+
+C -> M: 3. cancelBooking(bookingId, userId)
+activate M
+
+M -> F: 4. findById(bookingId)
+activate F
+F -> DB: 5. SELECT * FROM bookings WHERE id = ?
+DB --> F: 6. Данные бронирования
+F --> M: 7. Booking
+deactivate F
+
+alt Бронирование найдено
+    M -> M: 8. Проверка прав (пользователь или админ)
+    
+    alt Права есть
+        M -> F: 9. updateStatus(bookingId, 'CANCELLED')
+        activate F
+        F -> DB: 10. UPDATE bookings SET status = 'CANCELLED' WHERE id = ?
+        DB --> F: 11. Обновлено
+        F --> M: 12. Успешно
+        deactivate F
+        
+        M --> C: 13. Бронирование отменено
+        C --> P: 14. Успех
+        P --> User: 15. Подтверждение отмены
+    else Прав нет
+        M --> C: 16. Ошибка доступа
+        C --> P: 17. Ошибка
+        P --> User: 18. "Нет прав на отмену"
+    end
+else Бронирование не найдено
+    M --> C: 19. Бронирование не найдено
+    C --> P: 20. Ошибка
+    P --> User: 21. "Бронирование не найдено"
+end
+
+@enduml
