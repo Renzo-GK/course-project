@@ -16,14 +16,48 @@
         </div>
     </nav>
     <div class="container mt-5">
-        <div class="jumbotron">
-            <h1 class="display-4">Meeting Room Booking System</h1>
-            <p class="lead">Welcome to the meeting room booking system.</p>
-            <hr class="my-4">
-            <p>Please login or register to book meeting rooms.</p>
-            <a class="btn btn-primary btn-lg" href="/login" role="button">Login</a>
-            <a class="btn btn-success btn-lg" href="/register" role="button">Register</a>
+        <h2>Meeting Rooms</h2>
+        <hr>
+        <div id="rooms-container" class="row mt-4">
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading rooms...</p>
+            </div>
         </div>
     </div>
+    <script>
+        fetch('/api/rooms')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('rooms-container');
+                container.innerHTML = '';
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="alert alert-warning">No rooms available</div>';
+                    return;
+                }
+                data.forEach(room => {
+                    container.innerHTML +=
+                    '<div class="col-md-4 mb-3">' +
+                        '<div class="card">' +
+                            '<div class="card-body">' +
+                                '<h5 class="card-title">' + room.name + '</h5>' +
+                                '<p><strong>Capacity:</strong> ' + room.capacity + '</p>' +
+                                '<p><strong>Equipment:</strong> ' + (room.equipment || '-') + '</p>' +
+                                '<p><strong>Location:</strong> ' + room.location + '</p>' +
+                                '<span class="badge ' + (room.available ? 'bg-success' : 'bg-danger') + '">' +
+                                    (room.available ? 'Available' : 'Not Available') +
+                                '</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                });
+            })
+            .catch(error => {
+                document.getElementById('rooms-container').innerHTML =
+                    '<div class="alert alert-danger">Error: ' + error.message + '</div>';
+            });
+    </script>
 </body>
 </html>

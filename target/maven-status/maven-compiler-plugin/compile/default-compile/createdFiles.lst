@@ -8,6 +8,7 @@ com\company\booking\controller\AuthController.class
 com\company\booking\repository\UserRepository.class
 com\company\booking\entity\Role.class
 com\company\booking\service\UserService.class
+com\company\booking\controller\ApiController.class
 com\company\booking\entity\BookingStatus.class
 com\company\booking\repository\BookingRepository.class
 com\company\booking\service\BookingService.class
