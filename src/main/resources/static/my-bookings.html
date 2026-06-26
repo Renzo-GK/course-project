@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Meeting Rooms</a>
+            <div>
+                <a class="btn btn-outline-light btn-sm me-2" href="/">Home</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="/booking-form.html">New Booking</a>
+                <a class="btn btn-outline-light btn-sm" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-4">
+        <h2>My Bookings</h2>
+        <div id="bookings-list" class="mt-4">
+            <div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>
+        </div>
+    </div>
+
+    <script>
+        const userId = 1;
+
+        function loadBookings() {
+            fetch('/api/bookings/user/' + userId)
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to load bookings');
+                    return res.json();
+                })
+                .then(bookings => {
+                    const container = document.getElementById('bookings-list');
+                    if (bookings.length === 0) {
+                        container.innerHTML = '<div class="alert alert-info">No bookings found.</div>';
+                        return;
+                    }
+                    let html = `<table class="table table-striped">
+                        <thead>
+                            <tr><th>Room</th><th>Start</th><th>End</th><th>Subject</th><th>Status</th><th>Action</th></tr>
+                        </thead><tbody>`;
+                    bookings.forEach(b => {
+                        html += `<tr>
+                            <td>${b.roomName}</td>
+                            <td>${new Date(b.startDateTime).toLocaleString()}</td>
+                            <td>${new Date(b.endDateTime).toLocaleString()}</td>
+                            <td>${b.subject || '-'}</td>
+                            <td><span class="badge bg-primary">${b.status}</span></td>
+                            <td>
+                                ${b.status === 'SCHEDULED' ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">Cancel</button>` : '-'}
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    document.getElementById('bookings-list').innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+                });
+        }
+
+        function cancelBooking(bookingId) {
+            if (!confirm('Cancel this booking?')) return;
+            fetch('/api/bookings/' + bookingId + '?userId=' + userId, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to cancel');
+                loadBookings();
+            })
+            .catch(err => alert('Error: ' + err.message));
+        }
+
+        loadBookings();
+    </script>
+</body>
+</html>
