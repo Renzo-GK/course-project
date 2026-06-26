@@ -1,0 +1,58 @@
+﻿@startuml
+!theme plain
+title Use Case диаграмма
+
+left to right direction
+
+actor "Пользователь" as User #LightBlue
+actor "Администратор" as Admin #LightGreen
+actor "Гость" as Guest #LightGray
+
+rectangle "Веб-сервис бронирования" {
+
+    usecase "UC-01 Аутентификация" as UC01
+    usecase "UC-02 Просмотр комнат" as UC02
+    usecase "UC-03 Просмотр календаря" as UC03
+    usecase "UC-04 Создание бронирования" as UC04
+    usecase "UC-05 Мои бронирования" as UC05
+    usecase "UC-06 Отмена бронирования" as UC06
+    usecase "UC-07 Поиск комнат" as UC07
+    usecase "UC-08 Выход" as UC08
+    
+    usecase "UC-09 Управление пользователями" as UC09
+    usecase "UC-10 Управление комнатами" as UC10
+    usecase "UC-11 Все бронирования" as UC11
+    usecase "UC-12 Отмена любого бронирования" as UC12
+    usecase "UC-13 Статистика" as UC13
+    
+    UC04 ..> UC03 : <<includes>>
+    UC04 ..> UC07 : <<extends>>
+}
+
+Guest --> UC01
+
+User --> UC01
+User --> UC02
+User --> UC03
+User --> UC04
+User --> UC05
+User --> UC06
+User --> UC07
+User --> UC08
+
+Admin --> UC01
+Admin --> UC02
+Admin --> UC03
+Admin --> UC04
+Admin --> UC05
+Admin --> UC06
+Admin --> UC07
+Admin --> UC08
+Admin --> UC09
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+
+Admin -|> User
+@enduml

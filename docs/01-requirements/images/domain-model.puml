@@ -1,0 +1,50 @@
+﻿@startuml
+!theme plain
+title Domain Model
+
+class User {
+    - id: Long
+    - username: String
+    - password: String
+    - fullName: String
+    - email: String
+    - role: String
+    - enabled: Boolean
+}
+
+class MeetingRoom {
+    - id: Long
+    - name: String
+    - capacity: Integer
+    - equipment: String
+    - location: String
+    - isAvailable: Boolean
+}
+
+class Booking {
+    - id: Long
+    - startDateTime: LocalDateTime
+    - endDateTime: LocalDateTime
+    - status: String
+    - subject: String
+    - description: String
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+enum BookingStatus {
+    SCHEDULED
+    COMPLETED
+    CANCELLED
+}
+
+User "1" --> "0..*" Booking
+MeetingRoom "1" --> "0..*" Booking
+Booking "*" --> "1" User
+Booking "*" --> "1" MeetingRoom
+User --> Role
+Booking --> BookingStatus
+@enduml
